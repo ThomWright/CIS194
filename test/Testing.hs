@@ -9,26 +9,22 @@ data Test    = forall a. Show a => Test String (a -> Bool) [a]
 data Failure = forall a. Show a => Fail String [a]
 
 instance Show Failure where
-    show (Fail s as) = "Failed Test \"" ++ s
-                       ++ "\" on inputs " ++ show as
+    show (Fail name inputs) = "Failed Test \"" ++ name
+                       ++ "\" on inputs " ++ show inputs
 
 runTest :: Test -> Maybe Failure
-runTest (Test s f as) = case filter (not . f) as of
+runTest (Test name f inputs) = case filter (not . f) inputs of
                           [] -> Nothing
-                          fs -> Just $ Fail s fs
+                          fs -> Just $ Fail name fs
 
 runTests :: [Test] -> [Failure]
-runTests = catMaybes . map runTest
+runTests = mapMaybe runTest
 
 -- Helpers
 
 testF1 :: (Show a, Show b, Eq b) => String -> (a -> b) -> [(a, b)] -> Test
-testF1 s f l = Test s (uncurry (==)) $ map (first f) l
+testF1 name f l = Test name (uncurry (==)) $ map (first f) l
 
-testF2 :: (Show a, Show b, Show c, Eq c) => String -> (a -> b -> c)
-       -> [(a, b, c)] -> Test
-testF2 s f l = Test s (uncurry (==)) $ map (\(x, y, z) -> (f x y, z))  l
-
-testF3 :: (Show a, Show b, Show c, Show d, Eq d) => String -> (a -> b -> c -> d)
-       -> [(a, b, c, d)] -> Test
-testF3 s f l = Test s (uncurry (==)) $ map (\(w, x, y, z) ->  (f w x y, z)) l
+testF4 :: (Show a, Show b, Show c, Show d, Show e, Eq e) =>
+  String -> (a -> b -> c -> d -> e) -> [(a, b, c, d, e)] -> Test
+testF4 name f l = Test name (uncurry (==)) $ map (\(v, w, x, y, z) -> (f v w x y, z)) l
