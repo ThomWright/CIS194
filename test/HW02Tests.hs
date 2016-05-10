@@ -51,17 +51,37 @@ ex4Tests = [ testF2 "isConsistent test" isConsistent
 -- Exercise 5 -----------------------------------------
 
 ex5Tests :: [Test]
-ex5Tests = []
+ex5Tests = [ testF2 "filterCodes test" filterCodes
+             [ (Move [Red, Red, Blue, Green] 1 1, [[Red, Blue, Yellow, Purple], [Red, Blue, Red, Purple]],
+               [[Red, Blue, Yellow, Purple]])
+             ]
+           ]
 
 -- Exercise 6 -----------------------------------------
 
 ex6Tests :: [Test]
-ex6Tests = []
+ex6Tests = [ testF1 "allCodes test" (length . allCodes)
+             [ (1, 6)
+             , (4, 1296)
+             ]
+           ]
 
 -- Exercise 7 -----------------------------------------
 
 ex7Tests :: [Test]
-ex7Tests = []
+ex7Tests = [ testF1 "solve test final guess" (last . solve)
+             [ ([Purple, Red, Blue, Green]
+             , Move [Purple, Red, Blue, Green] 4 0)
+             ]
+           , testF1 "solve test first guess" (head . solve)
+             [ ([Purple, Red, Blue, Green]
+             , Move [Red, Red, Red, Red] 1 0)
+             ]
+           , testF1 "solve test length" (length . solve)
+             [ ([Purple, Red, Blue, Green]
+             , 6)
+             ]
+           ]
 
 -- Bonus ----------------------------------------------
 
@@ -78,5 +98,5 @@ allTests = concat [ ex1Tests
                   , ex5Tests
                   , ex6Tests
                   , ex7Tests
-                  , bonusTests
+                  -- , bonusTests
                   ]
