@@ -40,7 +40,7 @@ zipWithDefault :: a -> b -> (a->b->c) -> [a] -> [b] -> [c]
 zipWithDefault da db f la lb = let len = max (length la) (length lb)
                                    la' = la ++ repeat da
                                    lb' = lb ++ repeat db
-                             in take len $ zipWith f la' lb'
+                               in take len $ zipWith f la' lb'
 
 zipWith0 :: (Num a, Num b) => (a->b->c) -> [a] -> [b] -> [c]
 zipWith0 = zipWithDefault 0 0
@@ -51,15 +51,24 @@ plus (P p1) (P p2) = P $ zipWith0 (+) p1 p2
 -- Exercise 5 -----------------------------------------
 
 times :: Num a => Poly a -> Poly a -> Poly a
-times = undefined
+times (P p1) (P p2) = sum $ prefixZeros $ multCoeffs p1 p2
+
+multCoeffs :: Num a => [a] -> [a] -> [Poly a]
+multCoeffs [] _      = []
+multCoeffs (c:cs) a2 = (P $ map (c *) a2) : multCoeffs cs a2
+
+prefixZeros :: Num a => [Poly a] -> [Poly a]
+prefixZeros = zipWith prefix [0..]
+  where
+    prefix i (P poly) = P $ replicate i 0 ++ poly
 
 -- Exercise 6 -----------------------------------------
 
 instance Num a => Num (Poly a) where
     (+) = plus
     (*) = times
-    negate      = undefined
-    fromInteger = undefined
+    negate (P p)  = P $ map negate p
+    fromInteger i = P [fromInteger i]
     -- No meaningful definitions exist
     abs    = undefined
     signum = undefined
@@ -67,16 +76,25 @@ instance Num a => Num (Poly a) where
 -- Exercise 7 -----------------------------------------
 
 applyP :: Num a => Poly a -> a -> a
-applyP = undefined
+applyP (P poly) n = sum $ zipWith applyTerm [(0::Int)..] poly
+  where
+    applyTerm e c = c*(n^e)
 
 -- Exercise 8 -----------------------------------------
 
 class Num a => Differentiable a where
     deriv  :: a -> a
     nderiv :: Int -> a -> a
-    nderiv = undefined
+    nderiv 1 f = deriv f
+    nderiv n f = deriv $ nderiv (n-1) f
 
 -- Exercise 9 -----------------------------------------
 
 instance Num a => Differentiable (Poly a) where
-    deriv = undefined
+    deriv (P poly) = P $ decExp $ zipWith calcCoeff [(0::Int)..] poly
+      where
+        calcCoeff e c = fromIntegral e * c
+
+        decExp []     = []
+        decExp [_]    = []
+        decExp (_:cs) = cs
