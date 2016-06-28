@@ -20,6 +20,7 @@ library
                      , HW03
                      , HW04
                      , HW05
+                     , HW06
   other-modules:       HW05.Parser
   build-depends:       base >= 4.7 && < 5
                      , aeson
